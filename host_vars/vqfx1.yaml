@@ -1,0 +1,27 @@
+host_name: vqfx1
+interfaces:
+    - name: lo0
+      type: loopback
+      ip: 192.160.0.0/32
+      ip6: 2001:db8:1:0::/128
+      host_network: false
+    - name: xe-0/0/0
+      type: ethernet
+      ip: 10.10.0.0/31
+      ip6: 2001:db8::/127
+      host_network: false
+    - name: xe-0/0/1
+      type: ethernet
+      ip: 10.10.1.0/31
+      ip6: 2001:db8:0:1::/127
+      host_network: false
+bgp_asn: 65000
+bgp_neighbors:
+    - description: vqfx2
+      asn: 65003
+      ip: 10.10.0.1
+      ip6: 2001:db8::1
+    - description: vyos1
+      asn: 65001
+      ip: 10.10.1.1
+      ip6: 2001:db8:0:1::1

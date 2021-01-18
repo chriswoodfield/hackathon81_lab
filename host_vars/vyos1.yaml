@@ -1,0 +1,32 @@
+host_name: vyos1
+interfaces:
+    - name: lo
+      type: loopback
+      ip: 192.160.0.1/32
+      ip6: 2001:db8:1:0::1/128
+      host_network: false
+    - name: eth2
+      type: ethernet
+      ip: 10.10.1.1/31
+      ip6: 2001:db8:0:1::1/127
+      host_network: false
+    - name: eth3
+      type: ethernet
+      ip: 10.10.2.0/31
+      ip6: 2001:db8:0:2::/127
+      host_network: false
+    - name: eth6
+      type: ethernet
+      ip: 10.100.0.1/24
+      ip6: 2001:db8:0:ff00::1/64
+      host_network: true
+bgp_asn: 65001
+bgp_neighbors:
+    - description: vqfx2
+      asn: 65000
+      ip: 10.10.1.0
+      ip6: "2001:db8:0:1::"
+    - description: vyos1
+      asn: 65002
+      ip: 10.10.2.1
+      ip6: "2001:db8:0:2::1"

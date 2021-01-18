@@ -1,0 +1,169 @@
+{% set ns = namespace(found=false) %}
+{% set ns.host_dynamic_network = false %}
+{% for interface in interfaces %}
+{% if interface.host_network == true %}
+{% set ns.host_dynamic_network = true %}
+{% endif %}
+{% endfor %}
+system {
+    host-name {{ inventory_hostname }};
+    root-authentication {
+        encrypted-password "$1$fv3Ke4LT$10nlsy3SEJy5ainm.kPTd.";
+        ssh-rsa "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key";
+    }
+    login {
+        user vagrant {
+            uid 2000;
+            class super-user;
+            authentication {
+                ssh-rsa "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key";
+            }
+        }
+    }
+    services {
+{% if ns.host_dynamic_network == true %}
+        dhcp-local-server {
+{% for interface in interfaces %}
+{% if interface.host_network == true %}
+            group dhcp_group_{{ loop.index }} {
+                interface {{ interface.name }}.0;
+            }
+        }
+{% endif %}
+{% endfor %}
+{% endif %}
+        ssh {
+            root-login allow;
+        }
+        netconf {
+            ssh;
+        }
+    }
+    syslog {
+        user * {
+            any emergency;
+        }
+        file messages {
+            any notice;
+            authorization info;
+        }
+        file interactive-commands {
+            interactive-commands any;
+        }
+    }
+    extensions {
+        providers {
+            juniper {
+                license-type juniper deployment-scope commercial;
+            }
+            chef {
+                license-type juniper deployment-scope commercial;
+            }
+        }
+    }
+}
+interfaces {
+{% for interface in interfaces %}
+    {{ interface.name }} {
+        unit 0 {
+            family inet {
+                address {{ interface.ip }};
+            }
+            family inet6 {
+                address {{ interface.ip6 }};
+            }
+        }
+    }
+{% endfor %}
+    em0 {
+        unit 0 {
+            family inet {
+                dhcp;
+            }
+        }
+    }
+    em1 {
+        unit 0 {
+            family inet {
+                address 169.254.0.2/24;
+            }
+        }
+    }
+}
+policy-options {
+    policy-statement REDIST {
+        term DIRECT {
+            from protocol direct;
+            then accept;
+        }
+        then reject;
+    }
+}
+{% if ns.host_dynamic_network == true %}
+access {
+    address-assignment {
+{% for interface in interfaces %}
+{% if interface.host_network == true %}
+        pool dhcp_group_{{ loop.index }} {
+            family inet {
+                network {{ interface.ip | ansible.netcommon.ipaddr('network/prefix') }};
+                range dhcp_group_{{ loop.index }} {
+                    low {{ interface.ip | ansible.netcommon.ipmath(1) }};       
+                    high {{ interface.ip | ansible.netcommon.ipmath(126) }};
+                }
+            }
+        }
+{% endif %}
+{% endfor %}
+    }
+}
+{% endif %}
+routing-options {
+    autonomous-system {{ bgp_asn }};
+}
+protocols {
+{% if ns.host_dynamic_network == true %}
+    router-advertisement {
+{% for interface in interfaces %}
+{% if interface.host_network == true %}
+        interface {{ interface.name }} {
+            prefix {{ interface.ip6 | ansible.netcommon.ipaddr('network/prefix') }};
+        }
+{% endif %}
+{% endfor %}
+    }
+{% endif %}
+    lldp {
+        interface all;
+    }
+    bgp {
+        group V4 {
+            type external;
+            export REDIST;
+{% for neighbor in bgp_neighbors %}
+            neighbor {{ neighbor.ip }} {
+                description {{ neighbor.description }};
+                peer-as {{ neighbor.asn }};
+            }
+{% endfor %}
+        }
+        group V6 {
+            type external;
+            family inet6 {
+                unicast;
+            }
+            export REDIST;
+{% for neighbor in bgp_neighbors %}
+            neighbor {{ neighbor.ip6 }} {
+                description {{ neighbor.description }};
+                peer-as {{ neighbor.asn }};
+            }
+{% endfor %}
+        }
+    }
+}
+vlans {
+    default {
+        vlan-id 1;
+    }
+}
