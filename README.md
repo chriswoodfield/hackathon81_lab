@@ -1,13 +1,4 @@
-## Create a VM with VMX enabled in GCP
-gcloud compute disks create lab1 --image-project centos-cloud --image-family centos-8 --zone us-central1-b
-
-gcloud compute images create hackathon-lab-1 --source-disk lab1 --source-disk-zone us-central1-b --licenses "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx"
-
-gcloud compute instances create hackathon-lab-1 --zone us-central1-b \
-              --min-cpu-platform "Intel Haswell" \
-              --image hackathon-lab-1
-
-## Edit machine in GUI - min 32GB RAM
+## Instructions for Centos 8 lab install ##
 
 # Install latest Vagrant release
 sudo dnf -y install https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.rpm
@@ -28,7 +19,7 @@ sudo dnf install -y VirtualBox-6.1
 # Install Ansible and plugins
 sudo dnf install -y ansible
 ansible-galaxy install Juniper.junos
-sudo pip3 install netaddr
+sudo pip3 install netaddr junos-eznc jxmlease
 
 # Clone the lab repo
 sudo dnf install -y git
