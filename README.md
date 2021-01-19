@@ -1,3 +1,5 @@
+![Alt text](/images/hackathon81_lab_4_devices.png?raw=true "Lab Topology")
+
 ## Instructions for Centos 8 lab install ##
 
 # Install latest Vagrant release
