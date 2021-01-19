@@ -1,30 +1,44 @@
+## Create a VM with VMX enabled in GCP
+gcloud compute disks create lab1 --image-project centos-cloud --image-family centos-8 --zone us-central1-b
 
-This Vagrantfile will spawn 2 instances of VQFX (Full) each with 1 Routing Engine and 1 PFE VM  
-Both VQFX will be connected back to back with IP address pre-configured on their interfaces
+gcloud compute images create hackathon-lab-1 --source-disk lab1 --source-disk-zone us-central1-b --licenses "https://www.googleapis.com/compute/v1/projects/vm-options/global/licenses/enable-vmx"
 
-# Requirement
+gcloud compute instances create hackathon-lab-1 --zone us-central1-b \
+              --min-cpu-platform "Intel Haswell" \
+              --image hackathon-lab-1
 
-### Resources
- - RAM : 5G
- - CPU : 3 Cores
+## Edit machine in GUI - min 32GB RAM
 
-### Tools
- - Ansible for provisioning (except for windows)
- - Junos module for Ansible
+# Install latest Vagrant release
+sudo dnf -y install https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.rpm
 
-# Topology
+# Install VirtualBox
+# Enable repo
+sudo dnf -y install wget
+sudo wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo
+sudo mv virtualbox.repo /etc/yum.repos.d/
+sudo wget -q https://www.virtualbox.org/download/oracle_vbox.asc
+sudo rpm --import oracle_vbox.asc
+sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
-        em0|                        em0|
-    =============  xe-0/0/[0-5] =============
-    |           | ------------- |           |
-    |   vqfx1   | ------------- |   vqfx2   |
-    |           | ------------- |           |
-    =============               =============
-        em1|                        em1|
-    =============               =============
-    | vqfx1-pfe |               | vqfx1-pfe |
-    =============               =============
+# Install required libs/modules
+sudo dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms
+sudo dnf install -y VirtualBox-6.1
 
-# Provisioning / Configuration
+# Install Ansible and plugins
+sudo dnf install -y ansible
+ansible-galaxy install Juniper.junos
+sudo pip3 install netaddr
 
-Ansible is used to preconfigured both VQFX with an IP address on their interfaces
+# Clone the lab repo
+sudo dnf install -y git
+mkdir lab
+cd lab
+git clone https://github.com/chriswoodfield/hackathon81_lab
+
+# And provision it all!
+export VAGRANT_DEFAULT_PROVIDER=virtualbox
+vagrant up
+
+# If centos1/2 provisioning displays errors about invalid routes, recreate those VMs
+vagrant destroy -f centos1 centos2 && vagrant up centos1 centos2
