@@ -14,7 +14,7 @@ VQFX_PFE_BOX = "juniper/vqfx10k-pfe"
 VQFX_RE_BOX = "juniper/vqfx10k-re"
 VYOS_BOX = "kun432/vyos"
 VYOS_VERSION = "1.3-rolling-202010130117"
-CENTOS8_BOX = "centos/8"
+CENTOS8_BOX = "centos/7"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -90,7 +90,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             centos1.vm.box = CENTOS8_BOX
             centos1.vm.network "private_network", type: "dhcp", virtualbox__intnet: "#{UUID}_seg6"
             centos1.vm.provision "shell", inline: <<-SHELL
-                dnf install -y tcpdump traceroute
+                yum install -y tcpdump traceroute
                 # Manually install static routes. Installing/configuring FRR is a bit over the top for this lab.
                 ip route add 10.100.0.0/16 via 10.100.0.1 dev eth1
                 ip route add 192.168.0.0/16 via 10.100.0.1 dev eth1
@@ -106,7 +106,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             centos2.vm.box = CENTOS8_BOX
             centos2.vm.network "private_network", type: "dhcp", virtualbox__intnet: "#{UUID}_seg5"
             centos2.vm.provision "shell", inline: <<-SHELL
-                dnf install -y tcpdump traceroute
+                yum install -y tcpdump traceroute
                 # Manually install static routes. Installing/configuring FRR is a bit over the top for this lab.
                 ip route add 10.100.0.0/16 via 10.100.1.1 dev eth1
                 ip route add 192.168.0.0/16 via 10.100.1.1 dev eth1
