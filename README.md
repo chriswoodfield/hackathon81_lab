@@ -1,4 +1,10 @@
-![Alt text](/images/hackathon81_lab_4_devices.png?raw=true "Lab Topology")
+Full Lab Topology:
+
+![Full Lab Topology](/images/hackathon81_lab_4_devices.png?raw=true "vQFX Full Lab Topology")
+
+Lite Lab Topology:
+
+![Lite Lab Topology](/images/h81_lite_lab_2vqfx_vyos_centos.png?raw=true "vQFX Lite Lab Topology")
 
 ## Instructions for Centos 8 lab install ##
 
