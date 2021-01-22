@@ -58,7 +58,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             vyos.vm.box = VYOS_BOX
             vyos.vm.box_version = VYOS_VERSION
             # Dataplane ports
-            (1..6).each do |seg_id|
+            (1..7).each do |seg_id|
                 vyos.vm.network 'private_network', auto_config: false, nic_type: '82540EM', virtualbox__intnet: "#{UUID}_seg#{seg_id}"
             end
         end
@@ -69,16 +69,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         config.vm.define "centos1" do |centos1|
             centos1.vm.hostname = "centos1"
             centos1.vm.box = CENTOS8_BOX
-            centos1.vm.network "private_network", ip: "10.00.7.2/24", virtualbox__intnet: "#{UUID}_seg7"
+            centos1.vm.network "private_network", ip: "10.100.7.2", netmask: "255.255.255.0", virtualbox__intnet: "#{UUID}_seg7"
             centos1.vm.provision "shell", inline: <<-SHELL
                 yum install -y tcpdump traceroute
                 # Manually install static routes. Installing/configuring FRR is a bit over the top for this lab.
                 ip -6 addr add 2001:db8:0:ff07::2/64 dev eth1
                 ip -6 route add default via 2001:db8:0:ff07::1 dev eth1
-                ip route add 10.100.0.0/16 via 10.100.0.1 dev eth1
-                ip route add 192.168.0.0/16 via 10.100.0.1 dev eth1
-                # Needed for v6 autoconf
-                nmcli device modify eth1 ipv6.method auto
+                ip route add 10.10.0.0/16 via 10.100.7.1 dev eth1
+                ip route add 10.100.0.0/16 via 10.100.7.1 dev eth1
+                ip route add 192.168.0.0/16 via 10.100.7.1 dev eth1
                 # Vagrant provisions both eth1 and eth2 for no good reason, we only need one
                 ip link set dev eth2 down
             SHELL
@@ -87,16 +86,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         config.vm.define "centos2" do |centos2|
             centos2.vm.hostname = "centos2"
             centos2.vm.box = CENTOS8_BOX
-            centos2.vm.network "private_network", ip: "10.100.4.2/24", virtualbox__intnet: "#{UUID}_seg4"
+            centos2.vm.network "private_network", ip: "10.100.4.2", netmask: "255.255.255.0", virtualbox__intnet: "#{UUID}_seg4"
             centos2.vm.provision "shell", inline: <<-SHELL
                 yum install -y tcpdump traceroute
                 # Manually install static routes. Installing/configuring FRR is a bit over the top for this lab.
                 ip -6 addr add 2001:db8:0:ff04::2/64 dev eth1
                 ip -6 route add default via 2001:db8:0:ff04::1 dev eth1
-                ip route add 10.100.0.0/16 via 10.100.1.1 dev eth1
-                ip route add 192.168.0.0/16 via 10.100.1.1 dev eth1
-                # Needed for v6 autoconf
-                nmcli device modify eth1 ipv6.method auto
+                ip route add 10.100.0.0/16 via 10.100.4.1 dev eth1
+                ip route add 10.100.0.0/16 via 10.100.4.1 dev eth1
+                ip route add 192.168.0.0/16 via 10.100.4.1 dev eth1
                 # Vagrant provisions both eth1 and eth2 for no good reason, we only need one
                 ip link set dev eth2 down
             SHELL

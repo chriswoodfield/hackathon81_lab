@@ -1,4 +1,4 @@
-host_name: vyos1
+host_name: vyos2
 interfaces:
     - name: lo
       type: loopback
@@ -23,5 +23,5 @@ bgp_neighbors:
       ip6: "2001:db8:0:5::"
     - description: vyos1
       asn: 65001
-      ip: 10.10.6.1
-      ip6: "2001:db8:0:6::1"
+      ip: 10.10.6.0
+      ip6: "2001:db8:0:6::"
