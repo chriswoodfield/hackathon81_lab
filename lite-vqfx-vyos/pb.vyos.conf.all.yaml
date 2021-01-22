@@ -1,0 +1,11 @@
+- name: Build and deploy configuration
+  hosts: vyos
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Build configuration
+      template: src=vyos.conf.j2 dest=/tmp/{{ inventory_hostname }}.conf
+    - name: Deploy config to device ... please wait
+      vyos.vyos.vyos_config:
+        src: "/tmp/{{ inventory_hostname }}.conf"
+        save: yes
