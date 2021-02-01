@@ -37,7 +37,8 @@ _2. Install required libs/modules_
     sudo dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms
     sudo dnf install -y VirtualBox-6.1
 
-_3. Install Ansible and plugins_
+_3. Install Ansible and plugins_  
+    
     sudo dnf install -y ansible
     ansible-galaxy install Juniper.junos
     sudo pip3 install netaddr junos-eznc jxmlease
