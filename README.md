@@ -16,66 +16,72 @@ _Lite Lab Topology:_
 
 ## Instructions for Centos 8 lab install ##
 
-_Install latest Vagrant release_
+### Install latest Vagrant release:
 
-`sudo dnf -y install https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.rpm
-`
-**Install VirtualBox:**
+    sudo dnf -y install https://releases.hashicorp.com/vagrant/2.2.14/vagrant_2.2.14_x86_64.rpm
+
+
+### **Install VirtualBox:**
 
 _1. Enable repo_
 
-`sudo dnf -y install wget
-sudo wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo
-sudo mv virtualbox.repo /etc/yum.repos.d/
-sudo wget -q https://www.virtualbox.org/download/oracle_vbox.asc
-sudo rpm --import oracle_vbox.asc
-sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm`
+    sudo dnf -y install wget
+    sudo wget https://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo
+    sudo mv virtualbox.repo /etc/yum.repos.d/
+    sudo wget -q https://www.virtualbox.org/download/oracle_vbox.asc
+    sudo rpm --import oracle_vbox.asc
+    sudo dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 
 _2. Install required libs/modules_
 
-`sudo dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms
-sudo dnf install -y VirtualBox-6.1`
+    sudo dnf -y install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms
+    sudo dnf install -y VirtualBox-6.1
 
 _3. Install Ansible and plugins_
-`sudo dnf install -y ansible
-ansible-galaxy install Juniper.junos
-sudo pip3 install netaddr junos-eznc jxmlease`
+    sudo dnf install -y ansible
+    ansible-galaxy install Juniper.junos
+    sudo pip3 install netaddr junos-eznc jxmlease
 
-_4. Clone the lab repo_
-`sudo dnf install -y git
-mkdir lab
-cd lab
-git clone https://github.com/nanog/hackathon81_lab`
+**Clone the lab repo**
 
-**And provision it all!**
-`export VAGRANT_DEFAULT_PROVIDER=virtualbox
-vagrant up`
+    sudo dnf install -y git 
+    mkdir lab
+    cd lab
+    git clone https://github.com/nanog/hackathon81_lab
+
+**Launch VMs defined in Vagrantfile**
+
+    cd full|lite-vqfx-vyos
+    export VAGRANT_DEFAULT_PROVIDER=virtualbox  
+    vagrant up
 
 _If centos1/2 provisioning displays errors about invalid routes, recreate those VMs_
 
-`vagrant destroy -f centos1 centos2 && vagrant up centos1 centos2
-`
+    vagrant destroy -f centos1 centos2 && vagrant up centos1 centos2
+
 
 ### **Common Vagrant commands**
 
 _Instantiate and provision all unprovisioned images defined in Vagrantfile_
 
-`vagrant up`
+    vagrant up
 
 _Instantiate and provision a specific VM_
-`vagrant up {{ vm_name }}`
+
+    vagrant up {{ vm_name }}
 
 _Delete all images_ (often needed to re-provision after making changes to the Vagrantfile)
-`vagrant destroy [-f]`
+
+    vagrant destroy [-f]
 
 _Delete a specific VM_
 
-`vagrant destroy [-f] {{ vm_name }}`
+    vagrant destroy [-f] {{ vm_name }}
 
 _Get state of all VMs defined in Vagrantfile_
 
-`vagrant status`
+    vagrant status
 
 _Run provisioning operations on active VM_
 
-`vagrant provision [-f] {{ vm_name }}`
+    vagrant provision [-f] {{ vm_name }}
